@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+.env
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Datasets (Large files, should not be in git)
+datasets/
+Doc/
+
+# YOLOv8 / Ultralytics
+runs/
+*.pt
+yolov8*.pt
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project Specific
+inference_results/
+temp/
+
+# Backend persistence (created at runtime)
+oyster.db
+outputs/*.jpg
+outputs/*.png
+outputs/*.db
+
+# Frontend
+Frontend/node_modules/
+Frontend/.expo/
+Frontend/dist/

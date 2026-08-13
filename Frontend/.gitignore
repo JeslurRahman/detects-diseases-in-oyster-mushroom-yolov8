@@ -1,0 +1,18 @@
+node_modules/
+.expo/
+dist/
+web-build/
+*.log
+.env
+.env.local
+
+# macOS
+.DS_Store
+
+# Expo / EAS
+*.orig.*
+.expo-shared/
+
+# IDE
+.vscode/
+.idea/

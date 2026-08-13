@@ -1,0 +1,28 @@
+/** Barrel export for shared components. */
+export { AppText } from './AppText';
+export { AppInput } from './AppInput';
+export { BagCard } from './BagCard';
+export { BotanicalAccent } from './BotanicalAccent';
+export { Card } from './Card';
+export { ConfirmationDialog } from './ConfirmationDialog';
+export { Dropdown } from './Dropdown';
+export type { DropdownOption } from './Dropdown';
+export { EmptyState } from './EmptyState';
+export { ErrorBoundary } from './ErrorBoundary';
+export { ErrorView } from './ErrorView';
+export { FilterChip } from './FilterChip';
+export { Header } from './Header';
+export { HistoryCard } from './HistoryCard';
+export { ImageUploader } from './ImageUploader';
+export { Legend } from './Legend';
+export { LoadingOverlay } from './LoadingOverlay';
+export { PredictionCard } from './PredictionCard';
+export { PrimaryButton } from './PrimaryButton';
+export { RackGrid } from './RackGrid';
+export { Screen } from './Screen';
+export { SearchBar } from './SearchBar';
+export { SecondaryButton } from './SecondaryButton';
+export { Skeleton, HistoryCardSkeleton, GridSkeleton } from './Skeleton';
+export { StatisticsCard } from './StatisticsCard';
+export { StatusBadge } from './StatusBadge';
+export { ThemeToggle } from './ThemeToggle';
