@@ -28,6 +28,7 @@ import {
   ThemeToggle,
   AppText,
 } from '@/components';
+import { bagExists } from '@/api/prediction.api';
 import { useImagePicker } from '@/hooks/useImagePicker';
 import { usePredict, useSaveBag } from '@/hooks/useMutations';
 import type { RootStackParamList } from '@/navigation/types';
@@ -82,7 +83,24 @@ export function CaptureScreen() {
       setSnack('Please capture or upload an image first.');
       return;
     }
+    const rackId = values.rackId.trim().toUpperCase();
+    const bagId = values.bagId.trim().toUpperCase();
     try {
+      // Block duplicates BEFORE running detection — don't predict on an existing record.
+      let exists = false;
+      try {
+        exists = await bagExists(rackId, bagId);
+      } catch {
+        // If the check itself fails (e.g. offline), fall back to the server-side
+        // 409 guard rather than blocking the user here.
+      }
+      if (exists) {
+        setSnack(
+          `Bag ${bagId} in Rack ${rackId} is already recorded. Please use a different Bag ID.`,
+        );
+        return;
+      }
+
       const prediction = await predict.mutateAsync({
         uri: image.uri,
         name: image.name,
@@ -96,8 +114,8 @@ export function CaptureScreen() {
       );
 
       const payload: BagCreate = {
-        rack_id: values.rackId.trim().toUpperCase(),
-        bag_id: values.bagId.trim().toUpperCase(),
+        rack_id: rackId,
+        bag_id: bagId,
         prediction: prediction.prediction,
         confidence: prediction.confidence,
         notes: values.notes?.trim() || null,

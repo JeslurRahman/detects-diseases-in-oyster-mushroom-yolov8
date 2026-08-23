@@ -44,3 +44,11 @@ export async function saveBag(payload: BagCreate): Promise<Detection> {
   const { data } = await api.post('/bag', payload);
   return detectionSchema.parse(data);
 }
+
+/** Check whether a Rack+Bag is already recorded (before running detection). */
+export async function bagExists(rackId: string, bagId: string): Promise<boolean> {
+  const { data } = await api.get('/bag/exists', {
+    params: { rack_id: rackId, bag_id: bagId },
+  });
+  return Boolean((data as { exists?: boolean }).exists);
+}

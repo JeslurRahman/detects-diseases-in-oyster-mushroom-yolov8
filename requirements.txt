@@ -8,3 +8,4 @@ numpy>=1.24.0
 opencv-python-headless>=4.8.0
 sqlmodel>=0.0.14
 fpdf2>=2.7.0
+open_clip_torch>=2.20.0

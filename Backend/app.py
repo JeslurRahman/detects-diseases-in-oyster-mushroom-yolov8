@@ -33,6 +33,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
 
 import inference
+import mushroom_gate
 import reports
 import repository
 from db import get_session, init_db
@@ -61,6 +62,9 @@ async def lifespan(app: FastAPI):
     except FileNotFoundError as e:
         print(f"[WARN] {e}")
         print("   The API will start but /predict will fail until a model is available.")
+    # Preload the CLIP "is this a mushroom?" gate (downloads weights on first run).
+    print("[INIT] Loading mushroom gate...")
+    mushroom_gate.load()
     yield
     print("[SHUTDOWN] Shutting down...")
 
@@ -139,6 +143,17 @@ async def predict(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error reading file: {e}")
 
+    # Reject clearly non-mushroom images before running disease detection.
+    allowed, score = mushroom_gate.is_mushroom(contents)
+    if not allowed:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "We couldn't find a mushroom bag in this image. "
+                "Please capture or upload a clear photo of a mushroom bag."
+            ),
+        )
+
     try:
         start = time.time()
         result = inference.predict(contents, conf=confidence)
@@ -184,6 +199,22 @@ def get_rack(rack_id: int, session: Session = Depends(get_session)):
 # =====================================================================
 # Bags / detections
 # =====================================================================
+@app.get("/bag/exists")
+def bag_exists(
+    rack_id: str, bag_id: str, session: Session = Depends(get_session)
+):
+    """Check whether a Rack+Bag has already been recorded (used before predicting)."""
+    rack_name = rack_id.strip().upper()
+    bag = bag_id.strip().upper()
+    rack = session.exec(select(Rack).where(Rack.name == rack_name)).first()
+    if rack is None:
+        return {"exists": False}
+    dup = session.exec(
+        select(Detection).where(Detection.rack_id == rack.id, Detection.bag_id == bag)
+    ).first()
+    return {"exists": dup is not None}
+
+
 @app.post("/bag", response_model=DetectionOut, status_code=201)
 def create_bag(payload: BagCreate, session: Session = Depends(get_session)):
     if payload.prediction not in DISEASE_CLASSES:
