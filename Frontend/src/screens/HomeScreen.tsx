@@ -1,8 +1,3 @@
-/**
- * HomeScreen — farm overview dashboard.
- * "Disease Detection" is wired to the existing Capture flow; the other tiles
- * are placeholders for features not built yet.
- */
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';

@@ -1,8 +1,3 @@
-/**
- * RootNavigator — Home is a standalone screen (no tab bar). The Capture /
- * Tracking / History tabs live behind the "Disease Detection" flow, so the tab
- * bar only appears once the user enters disease detection.
- */
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 
