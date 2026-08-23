@@ -9,6 +9,7 @@ import React from 'react';
 import { CameraScreen } from '@/screens/CameraScreen';
 import { DetailScreen } from '@/screens/DetailScreen';
 import { HomeScreen } from '@/screens/HomeScreen';
+import { WebViewScreen } from '@/screens/WebViewScreen';
 
 import { BottomTabs } from './BottomTabs';
 import type { RootStackParamList } from './types';
@@ -32,6 +33,11 @@ export function RootNavigator() {
       <Stack.Screen
         name="Detail"
         component={DetailScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="WebView"
+        component={WebViewScreen}
         options={{ animation: 'slide_from_right' }}
       />
     </Stack.Navigator>

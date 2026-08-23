@@ -18,7 +18,8 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to photograph mushroom bags for disease detection.",
-        "NSPhotoLibraryUsageDescription": "This app accesses your photos to analyze mushroom bag images."
+        "NSPhotoLibraryUsageDescription": "This app accesses your photos to analyze mushroom bag images.",
+        "NSMicrophoneUsageDescription": "Some in-app web tools may request the microphone when capturing media."
       }
     },
     "android": {
@@ -27,6 +28,7 @@
       },
       "permissions": [
         "CAMERA",
+        "RECORD_AUDIO",
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE"
       ]

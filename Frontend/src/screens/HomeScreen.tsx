@@ -7,7 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { Linking, Platform, ScrollView, View } from 'react-native';
 import { Snackbar } from 'react-native-paper';
 
 import { AppText, BotanicalAccent, Card, QuickAccessTile, Screen } from '@/components';
@@ -16,9 +16,9 @@ import { useAppTheme } from '@/theme/ThemeProvider';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
-// Placeholder environment readings — no sensor feed exists yet; wire these to a
-// real endpoint (e.g. GET /environment) when hardware data is available.
 const FARM = { temperature: '24.6 °C', humidity: '78 %' };
+
+const GROWTH_STAGE_URL = 'https://shroomboard.private-staging.vip/login';
 
 export function HomeScreen() {
   const navigation = useNavigation<Nav>();
@@ -85,8 +85,16 @@ export function HomeScreen() {
             <QuickAccessTile
               icon="mushroom-outline"
               label="Growth Stage Detection"
-              available={false}
-              onPress={() => setSnack('Growth Stage Detection is coming soon.')}
+              onPress={() => {
+                if (Platform.OS === 'web') {
+                  Linking.openURL(GROWTH_STAGE_URL);
+                } else {
+                  navigation.navigate('WebView', {
+                    url: GROWTH_STAGE_URL,
+                    title: 'Growth Stage Detection',
+                  });
+                }
+              }}
             />
             <QuickAccessTile
               icon="water-outline"

@@ -12,4 +12,5 @@ export type RootStackParamList = {
   DiseaseDetection: NavigatorScreenParams<TabParamList>;
   Camera: undefined;
   Detail: { id: number };
+  WebView: { url: string; title: string };
 };
