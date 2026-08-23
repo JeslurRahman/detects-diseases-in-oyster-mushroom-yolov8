@@ -65,3 +65,4 @@ Backend/outputs/*.db
 Frontend/node_modules/
 Frontend/.expo/
 Frontend/dist/
+Others

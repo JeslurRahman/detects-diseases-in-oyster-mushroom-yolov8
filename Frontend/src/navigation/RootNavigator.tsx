@@ -1,9 +1,14 @@
-/** RootNavigator — stack wrapping the tabs + Camera (modal) + Detail. */
+/**
+ * RootNavigator — Home is a standalone screen (no tab bar). The Capture /
+ * Tracking / History tabs live behind the "Disease Detection" flow, so the tab
+ * bar only appears once the user enters disease detection.
+ */
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 
 import { CameraScreen } from '@/screens/CameraScreen';
 import { DetailScreen } from '@/screens/DetailScreen';
+import { HomeScreen } from '@/screens/HomeScreen';
 
 import { BottomTabs } from './BottomTabs';
 import type { RootStackParamList } from './types';
@@ -12,8 +17,13 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function RootNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Tabs" component={BottomTabs} />
+    <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen
+        name="DiseaseDetection"
+        component={BottomTabs}
+        options={{ animation: 'slide_from_right' }}
+      />
       <Stack.Screen
         name="Camera"
         component={CameraScreen}

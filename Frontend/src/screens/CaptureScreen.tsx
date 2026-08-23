@@ -157,6 +157,7 @@ export function CaptureScreen() {
       <Header
         title="Capture Image"
         subtitle="Capture or upload a mushroom bag image"
+        onBack={() => navigation.navigate('Home')}
         right={<ThemeToggle />}
       />
       <KeyboardAvoidingView

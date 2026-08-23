@@ -18,6 +18,7 @@ export { Legend } from './Legend';
 export { LoadingOverlay } from './LoadingOverlay';
 export { PredictionCard } from './PredictionCard';
 export { PrimaryButton } from './PrimaryButton';
+export { QuickAccessTile } from './QuickAccessTile';
 export { RackGrid } from './RackGrid';
 export { Screen } from './Screen';
 export { SearchBar } from './SearchBar';

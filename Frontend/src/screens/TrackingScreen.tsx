@@ -71,7 +71,7 @@ export function TrackingScreen() {
 
   return (
     <Screen>
-      <Header title="Rack Tracking" />
+      <Header title="Rack Tracking" onBack={() => navigation.navigate('Home')} />
       <ScrollView
         contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing['4xl'], gap: spacing.lg }}
         refreshControl={

@@ -8,7 +8,8 @@ export type TabParamList = {
 };
 
 export type RootStackParamList = {
-  Tabs: NavigatorScreenParams<TabParamList>;
+  Home: undefined;
+  DiseaseDetection: NavigatorScreenParams<TabParamList>;
   Camera: undefined;
   Detail: { id: number };
 };

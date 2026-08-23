@@ -135,7 +135,7 @@ export function HistoryScreen() {
 
   return (
     <Screen>
-      <Header title="History & Reports" />
+      <Header title="History & Reports" onBack={() => navigation.navigate('Home')} />
       {history.isLoading ? (
         <View style={{ padding: spacing.lg, gap: spacing.md }}>
           {renderHeader()}
