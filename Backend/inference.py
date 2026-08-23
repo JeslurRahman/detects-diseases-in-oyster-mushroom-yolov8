@@ -68,11 +68,11 @@ def load_model(model_path=None):
     from ultralytics import YOLO
 
     if model_path is None:
-        base = Path(__file__).resolve().parent
+        model_dir = Path(__file__).resolve().parent.parent / "Model"
         candidates = [
-            base / "best.pt",
-            base / "runs" / "detect" / "oyster_disease_s" / "weights" / "best.pt",
-            base / "runs" / "detect" / "oyster_disease_n" / "weights" / "best.pt",
+            model_dir / "best.pt",
+            model_dir / "runs" / "detect" / "oyster_disease_s" / "weights" / "best.pt",
+            model_dir / "runs" / "detect" / "oyster_disease_n" / "weights" / "best.pt",
         ]
         for c in candidates:
             if c.exists():
@@ -93,7 +93,7 @@ def load_model(model_path=None):
 def save_annotated_image(result):
     annotated = result.plot()
 
-    output_dir = Path("outputs")
+    output_dir = Path(__file__).resolve().parent / "outputs"
     output_dir.mkdir(exist_ok=True)
 
     filename = f"{uuid.uuid4().hex}.jpg"

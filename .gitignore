@@ -33,11 +33,11 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 # Datasets (Large files, should not be in git)
-datasets/
+Model/datasets/
 Doc/
 
 # YOLOv8 / Ultralytics
-runs/
+Model/runs/
 *.pt
 yolov8*.pt
 
@@ -56,10 +56,10 @@ inference_results/
 temp/
 
 # Backend persistence (created at runtime)
-oyster.db
-outputs/*.jpg
-outputs/*.png
-outputs/*.db
+Backend/oyster.db
+Backend/outputs/*.jpg
+Backend/outputs/*.png
+Backend/outputs/*.db
 
 # Frontend
 Frontend/node_modules/
