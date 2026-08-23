@@ -83,16 +83,24 @@ export function TrackingScreen() {
         }
         showsVerticalScrollIndicator={false}
       >
-        <View style={{ alignSelf: 'flex-start' }}>
-          <Dropdown
-            options={rackOptions}
-            value={selectedRackId}
-            onChange={(v) => setSelectedRack(Number(v))}
-            placeholder="Select rack"
+        {racksQuery.data && rackOptions.length === 0 ? (
+          <EmptyState
+            icon="cube-outline"
+            title="No racks yet"
+            message="Capture a detection on the Capture tab to start tracking racks here."
           />
-        </View>
+        ) : (
+          <>
+            <View style={{ alignSelf: 'flex-start' }}>
+              <Dropdown
+                options={rackOptions}
+                value={selectedRackId}
+                onChange={(v) => setSelectedRack(Number(v))}
+                placeholder="Select rack"
+              />
+            </View>
 
-        {detail.isLoading ? (
+            {detail.isLoading ? (
           <>
             <View style={{ flexDirection: 'row', gap: spacing.md }}>
               <StatisticsCard label="Total Bags" value="—" />
@@ -141,8 +149,10 @@ export function TrackingScreen() {
             <Card padded>
               <Legend />
             </Card>
+              </>
+            ) : null}
           </>
-        ) : null}
+        )}
       </ScrollView>
 
       <BottomSheet

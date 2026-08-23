@@ -134,10 +134,6 @@ export function DetailScreen() {
             <Row label="Bag ID" value={data.bag_id} />
             <Row label="Confidence" value={formatConfidence(data.confidence)} />
             <Row
-              label="Bounding Box"
-              value={data.bbox ? data.bbox.map((n: number) => Math.round(n)).join(', ') : 'N/A'}
-            />
-            <Row
               label="Inference Time"
               value={data.inference_time_ms ? `${Math.round(data.inference_time_ms)} ms` : '—'}
             />

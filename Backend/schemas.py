@@ -1,10 +1,15 @@
 """
 schemas.py - Pydantic request/response models for the data endpoints.
 """
+import re
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+# Rack IDs look like R01, R02, R010 (letter R + digits); bags like B01, B03.
+RACK_ID_RE = re.compile(r"^R\d+$")
+BAG_ID_RE = re.compile(r"^B\d+$")
 
 
 # ---------------------------------------------------------------- Racks
@@ -32,6 +37,22 @@ class BagCreate(BaseModel):
     image_height: int = 0
     inference_time_ms: Optional[float] = None
     captured_at: Optional[datetime] = None
+
+    @field_validator("rack_id")
+    @classmethod
+    def _validate_rack_id(cls, v: str) -> str:
+        v = v.strip().upper()
+        if not RACK_ID_RE.match(v):
+            raise ValueError("Rack ID must be like R01, R02 (letter R followed by digits)")
+        return v
+
+    @field_validator("bag_id")
+    @classmethod
+    def _validate_bag_id(cls, v: str) -> str:
+        v = v.strip().upper()
+        if not BAG_ID_RE.match(v):
+            raise ValueError("Bag ID must be like B01, B03 (letter B followed by digits)")
+        return v
 
 
 class DetectionOut(BaseModel):

@@ -40,8 +40,15 @@ import type { BagCreate } from '@/types';
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const schema = z.object({
-  rackId: z.string().trim().min(1, 'Rack ID is required'),
-  bagId: z.string().trim().min(1, 'Bag ID is required'),
+  // Rack IDs look like R01, R02, R010; bags like B01, B03.
+  rackId: z
+    .string()
+    .trim()
+    .regex(/^R\d+$/i, 'Rack ID must be like R01, R02'),
+  bagId: z
+    .string()
+    .trim()
+    .regex(/^B\d+$/i, 'Bag ID must be like B01, B03'),
   notes: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
@@ -89,8 +96,8 @@ export function CaptureScreen() {
       );
 
       const payload: BagCreate = {
-        rack_id: values.rackId.trim(),
-        bag_id: values.bagId.trim(),
+        rack_id: values.rackId.trim().toUpperCase(),
+        bag_id: values.bagId.trim().toUpperCase(),
         prediction: prediction.prediction,
         confidence: prediction.confidence,
         notes: values.notes?.trim() || null,
@@ -106,10 +113,16 @@ export function CaptureScreen() {
         setSaved(record);
         setSnack(`Saved to Rack ${record.rack_name} • Bag ${record.bag_id}`);
       } catch (saveErr) {
-        // Prediction succeeded but persistence failed — queue it so nothing is lost.
-        await enqueueBag(payload);
+        const appErr = toAppError(saveErr);
         setSaved(null);
-        setSnack(`${toAppError(saveErr).message} Result queued to sync later.`);
+        // Only queue on connectivity failures. A duplicate (409) or validation
+        // error is a permanent rejection — surface it, don't retry silently.
+        if (appErr.kind === 'network' || appErr.kind === 'timeout') {
+          await enqueueBag(payload);
+          setSnack(`${appErr.message} Result queued to sync later.`);
+        } else {
+          setSnack(appErr.message);
+        }
       }
     } catch (err) {
       setSnack(toAppError(err).message);
@@ -172,10 +185,11 @@ export function CaptureScreen() {
                 render={({ field, fieldState }) => (
                   <AppInput
                     label="Rack ID"
-                    placeholder="Enter Rack ID"
+                    placeholder="Enter Rack ID (Format: R01)"
                     autoCapitalize="characters"
+                    autoCorrect={false}
                     value={field.value}
-                    onChangeText={field.onChange}
+                    onChangeText={(t) => field.onChange(t.toUpperCase())}
                     onBlur={field.onBlur}
                     error={fieldState.error?.message}
                   />
@@ -189,10 +203,11 @@ export function CaptureScreen() {
                 render={({ field, fieldState }) => (
                   <AppInput
                     label="Bag ID"
-                    placeholder="Enter Bag ID"
+                    placeholder="Enter Bag ID (Format: B01)"
                     autoCapitalize="characters"
+                    autoCorrect={false}
                     value={field.value}
-                    onChangeText={field.onChange}
+                    onChangeText={(t) => field.onChange(t.toUpperCase())}
                     onBlur={field.onBlur}
                     error={fieldState.error?.message}
                   />

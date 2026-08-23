@@ -48,14 +48,12 @@ from schemas import (
     ReportSummary,
 )
 
-DEFAULT_RACKS = ["A01", "A02", "A03"]
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     OUTPUTS_DIR.mkdir(exist_ok=True)
     init_db()
-    _seed_racks()
+    # Racks are created on demand when a detection is saved; we no longer seed
+    # placeholder racks, so only racks that actually have records exist.
     print("[INIT] Loading model...")
     try:
         inference.load_model()
@@ -65,17 +63,6 @@ async def lifespan(app: FastAPI):
         print("   The API will start but /predict will fail until a model is available.")
     yield
     print("[SHUTDOWN] Shutting down...")
-
-
-def _seed_racks():
-    from db import engine
-
-    with Session(engine) as session:
-        existing = {r.name for r in session.exec(select(Rack)).all()}
-        for name in DEFAULT_RACKS:
-            if name not in existing:
-                session.add(Rack(name=name))
-        session.commit()
 
 
 app = FastAPI(
@@ -178,7 +165,12 @@ async def predict(
 # =====================================================================
 @app.get("/racks", response_model=list[RackOut])
 def list_racks(session: Session = Depends(get_session)):
-    return session.exec(select(Rack).order_by(Rack.name)).all()
+    # Only racks that currently have at least one detection. Racks whose records
+    # were all deleted drop out automatically.
+    recorded_rack_ids = select(Detection.rack_id).distinct()
+    return session.exec(
+        select(Rack).where(Rack.id.in_(recorded_rack_ids)).order_by(Rack.name)
+    ).all()
 
 
 @app.get("/rack/{rack_id}", response_model=RackDetailOut)
@@ -198,6 +190,19 @@ def create_bag(payload: BagCreate, session: Session = Depends(get_session)):
         raise HTTPException(status_code=400, detail=f"Invalid prediction: {payload.prediction}")
 
     rack = repository.get_or_create_rack(session, payload.rack_id)
+
+    # Prevent recording the same bag in the same rack twice.
+    duplicate = session.exec(
+        select(Detection).where(
+            Detection.rack_id == rack.id, Detection.bag_id == payload.bag_id
+        )
+    ).first()
+    if duplicate is not None:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Bag {payload.bag_id} in Rack {rack.name} has already been recorded.",
+        )
+
     filename = repository.normalize_image(payload.image)
     if filename and not (OUTPUTS_DIR / filename).exists():
         # tolerate a missing file (don't hard-fail the save) but drop the ref
