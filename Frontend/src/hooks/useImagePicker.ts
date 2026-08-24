@@ -10,6 +10,21 @@ function tooLarge(size?: number) {
   return typeof size === 'number' && size > MAX_IMAGE_BYTES;
 }
 
+// Image formats the backend/model accept.
+const SUPPORTED_IMAGE_TYPES = ['jpg', 'jpeg', 'png', 'bmp', 'webp', 'tiff'];
+
+function isSupportedImage(name?: string | null, mimeType?: string | null): boolean {
+  const mimeSub = mimeType?.toLowerCase().startsWith('image/')
+    ? mimeType.toLowerCase().slice('image/'.length)
+    : undefined;
+  const ext = name?.split('.').pop()?.toLowerCase();
+  const token = mimeSub ?? ext;
+  // If the type can't be determined, allow it — the library is already limited to
+  // images and the backend re-validates the format on upload.
+  if (!token) return true;
+  return SUPPORTED_IMAGE_TYPES.includes(token);
+}
+
 export function useImagePicker() {
   const [picking, setPicking] = useState(false);
 
@@ -36,6 +51,13 @@ export function useImagePicker() {
       });
       if (result.canceled || !result.assets.length) return null;
       const asset = result.assets[0]!;
+      if (!isSupportedImage(asset.fileName, asset.mimeType)) {
+        Alert.alert(
+          'Unsupported file format',
+          'Please choose an image file (JPG, PNG, BMP, WEBP or TIFF).',
+        );
+        return null;
+      }
       if (tooLarge(asset.fileSize)) {
         Alert.alert('Image too large', 'Please choose an image under 12 MB.');
         return null;

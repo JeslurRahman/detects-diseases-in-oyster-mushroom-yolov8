@@ -41,14 +41,16 @@ import type { BagCreate } from '@/types';
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const schema = z.object({
-  // Rack IDs look like R01, R02, R010; bags like B01, B03.
+  // Rack IDs look like R01, R02, R010; bags like B01, B03. Both are required.
   rackId: z
     .string()
     .trim()
+    .min(1, 'Rack ID is required')
     .regex(/^R\d+$/i, 'Rack ID must be like R01, R02'),
   bagId: z
     .string()
     .trim()
+    .min(1, 'Bag ID is required')
     .regex(/^B\d+$/i, 'Bag ID must be like B01, B03'),
   notes: z.string().optional(),
 });
