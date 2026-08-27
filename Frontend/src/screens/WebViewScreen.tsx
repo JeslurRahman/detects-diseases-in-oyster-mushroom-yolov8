@@ -2,10 +2,11 @@
  * WebViewScreen — loads an external hosted web app inside the mobile app
  * (used for features hosted separately, e.g. Growth Stage Detection).
  */
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 import { ErrorView, Header, Screen } from '@/components';
@@ -20,12 +21,39 @@ export function WebViewScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useAppTheme();
   const webRef = useRef<WebView>(null);
+  const [firstLoadDone, setFirstLoadDone] = useState(false);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
 
+  useEffect(() => {
+    if (!loading) return;
+    const t = setTimeout(() => setLoading(false), 12000);
+    return () => clearTimeout(t);
+  }, [loading]);
+
+  const reload = () => {
+    setFailed(false);
+    webRef.current?.reload();
+  };
+
+  const showOverlay = loading && !firstLoadDone && !failed;
+
   return (
     <Screen>
-      <Header title={params.title} onBack={() => navigation.goBack()} />
+      <Header
+        title={params.title}
+        onBack={() => navigation.goBack()}
+        right={
+          <Pressable
+            onPress={reload}
+            hitSlop={12}
+            accessibilityLabel="Reload page"
+            style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Ionicons name="reload" size={20} color={colors.text} />
+          </Pressable>
+        }
+      />
       <View style={{ flex: 1 }}>
         {failed ? (
           <ErrorView
@@ -33,28 +61,34 @@ export function WebViewScreen() {
               kind: 'network',
               message: "Couldn't load the page. Check your connection and try again.",
             }}
-            onRetry={() => {
-              setFailed(false);
-              setLoading(true);
-              webRef.current?.reload();
-            }}
+            onRetry={reload}
           />
         ) : (
           <WebView
             ref={webRef}
             source={{ uri: params.url }}
-            onLoadStart={() => setLoading(true)}
-            onLoadEnd={() => setLoading(false)}
+            onLoadStart={() => {
+              if (!firstLoadDone) setLoading(true);
+            }}
+            onLoadProgress={({ nativeEvent }) => {
+              if (nativeEvent.progress >= 1) setLoading(false);
+            }}
+            onLoadEnd={() => {
+              setLoading(false);
+              setFirstLoadDone(true);
+            }}
             onError={() => {
               setFailed(true);
               setLoading(false);
             }}
+            onContentProcessDidTerminate={() => webRef.current?.reload()}
             originWhitelist={['*']}
             sharedCookiesEnabled
             thirdPartyCookiesEnabled
             domStorageEnabled
             javaScriptEnabled
             javaScriptCanOpenWindowsAutomatically
+            pullToRefreshEnabled
             // --- file upload ("Browse Files") ---
             allowFileAccess
             allowFileAccessFromFileURLs
@@ -69,7 +103,7 @@ export function WebViewScreen() {
           />
         )}
 
-        {loading && !failed ? (
+        {showOverlay ? (
           <View
             style={[
               StyleSheet.absoluteFill,
